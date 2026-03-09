@@ -1,21 +1,14 @@
-import fs from "fs";
 import path from "path";
+import fs from "fs/promises";
 
 export async function getArticlesData() {
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "..",
-      "Kinage-AL-",
-      "outputs",
-      "ranked_chunks.json"
-    );
-    const fileData = await fs.promises.readFile(filePath, "utf-8");
-    const articles = JSON.parse(fileData);
+  const filePath = path.join(
+    process.cwd(),
+    "data",
+    "ranked_chunks.json"
+  );
 
-    return articles;
-  } catch (error) {
-    console.error("Failed to load ranked_chunks.json:", error);
-    throw new Error("Could not load ranked_chunks.json");
-  }
+  const file = await fs.readFile(filePath, "utf-8");
+
+  return JSON.parse(file);
 }
