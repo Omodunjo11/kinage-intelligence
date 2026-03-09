@@ -3,13 +3,11 @@ import { getArticles } from "@/lib/articles";
 
 export async function GET() {
   try {
-    const articles = await getArticles();
-
-    return NextResponse.json(articles);
+    const data = await getArticles();
+    return NextResponse.json(data);
   } catch (error) {
-    console.error("Failed to load articles:", error);
     return NextResponse.json(
-      { error: "Failed to load articles" },
+      { error: "Could not load ranked_chunks.json" },
       { status: 500 }
     );
   }
