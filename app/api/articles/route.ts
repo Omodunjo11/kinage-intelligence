@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { getArticlesData } from "@/lib/articles";
+import { getArticles } from "@/lib/articles";
 
 export async function GET() {
   try {
-    const data = await getArticlesData();
-    return NextResponse.json(data);
+    const articles = await getArticles();
+
+    return NextResponse.json(articles);
   } catch (error) {
+    console.error("Failed to load articles:", error);
     return NextResponse.json(
-      { error: "Could not load ranked_chunks.json" },
+      { error: "Failed to load articles" },
       { status: 500 }
     );
   }
