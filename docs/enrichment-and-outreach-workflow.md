@@ -30,12 +30,15 @@ npm run authors:enrich:write
 Build Clay + HubSpot queue payloads:
 
 ```bash
+npm run signals:curate
 npm run outreach:build
 ```
 
 ## Files generated
 
 - `data/author_activity.json`
+- `data/curated_signals.json`
+- `data/curation_report.json`
 - `data/clay_signal_candidates.json`
 - `data/hubspot_outreach_queue.json`
 

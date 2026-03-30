@@ -2,6 +2,30 @@
 
 Updated: 2026-03-30
 
+## Kinage profile controls
+
+The curation and API filtering use a shared profile file:
+
+- `config/kinage-profile.json`
+
+Key controls:
+
+- `audienceTerms`: requires elder/caregiver context.
+- `problemTerms`: requires financial-risk/problem context.
+- `excludeTerms`: hard exclusions for off-mission topics.
+- `preferredDomains`: boosts core domains (A-D).
+- `preferredFeeds`: boosts feeds that historically align with Kinage intent.
+- `deprioritizedFeeds`: penalizes low-yield feeds.
+- `minFitScore`: acceptance threshold.
+- `priorityBypassFitScore`: allows very strong critical signals through.
+
+To tune intake specificity:
+
+1. Add/remove terms in `audienceTerms` and `problemTerms`.
+2. Raise `minFitScore` for stricter intake.
+3. Expand `excludeTerms` for recurring noise.
+4. Review `data/curation_report.json` weekly and demote weak feeds.
+
 ## 1) Domain assignment and filter behavior
 
 Signals now use canonical domain assignment before rendering:

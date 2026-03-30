@@ -9,6 +9,7 @@
     "lint": "eslint",
     "authors:enrich": "node scripts/enrich-authors.mjs",
     "authors:enrich:write": "node scripts/enrich-authors.mjs --write",
+    "signals:curate": "node scripts/curate-signals.mjs",
     "outreach:build": "node scripts/build-outreach-queues.mjs"
   },
   "dependencies": {

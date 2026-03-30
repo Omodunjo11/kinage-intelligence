@@ -39,6 +39,9 @@ npm run authors:enrich
 # persist scraped author values into data/ranked_chunks.json
 npm run authors:enrich:write
 
+# apply Kinage-specific intake profile and write curated_signals.json + curation_report.json
+npm run signals:curate
+
 # generate Clay candidate and HubSpot assignment queue payloads
 npm run outreach:build
 ```

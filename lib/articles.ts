@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
+import { evaluateKinageFit } from "@/lib/kinageProfile";
 import { DOMAIN_MAP, type DomainKey, getPriority, resolveDomains } from "@/lib/signalModel";
 
 export type RawChunk = {
@@ -52,6 +53,9 @@ export type NormalizedArticle = {
   entities?: string[];
   severity?: string;
   author?: string;
+  kinageFitScore: number;
+  kinageAccepted: boolean;
+  kinageReasons: string[];
 };
 
 export type AuthorActivity = {
@@ -103,6 +107,17 @@ export function normalizeChunk(raw: RawChunk): NormalizedArticle | null {
     summary,
   });
   const priority = getPriority(score);
+  const fit = evaluateKinageFit({
+    title,
+    summary,
+    text: raw.text,
+    source: m.source,
+    feedName: m.feed_name,
+    relevance: score,
+    riskType,
+    domainTags: resolved.domains,
+    primaryDomain: resolved.primaryDomain,
+  });
 
   return {
     id: raw.id ?? Math.random().toString(36).slice(2),
@@ -127,6 +142,9 @@ export function normalizeChunk(raw: RawChunk): NormalizedArticle | null {
       : undefined,
     severity: m.severity ?? raw.severity,
     author: parseAuthor(m),
+    kinageFitScore: fit.fitScore,
+    kinageAccepted: fit.accepted,
+    kinageReasons: fit.reasons,
   };
 }
 
@@ -134,12 +152,19 @@ export async function getArticles(): Promise<RawChunk[]> {
   return readRankedChunks();
 }
 
-export async function getNormalizedArticles(): Promise<NormalizedArticle[]> {
+export async function getNormalizedArticles(options?: {
+  includeRejected?: boolean;
+}): Promise<NormalizedArticle[]> {
   const raw = await readRankedChunks();
-  return raw
+  const includeRejected = options?.includeRejected ?? false;
+
+  const normalized = raw
     .map(normalizeChunk)
     .filter((article): article is NormalizedArticle => article !== null)
     .sort((a, b) => b.score - a.score);
+
+  if (includeRejected) return normalized;
+  return normalized.filter((article) => article.kinageAccepted);
 }
 
 export async function getAuthorActivity(): Promise<AuthorActivity[]> {

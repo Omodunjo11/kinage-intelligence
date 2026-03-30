@@ -1,0 +1,66 @@
+{
+  "version": "2026-03-30",
+  "minFitScore": 0.55,
+  "priorityBypassFitScore": 0.8,
+  "audienceTerms": [
+    "aging parent",
+    "older adult",
+    "elder",
+    "senior",
+    "caregiver",
+    "dementia",
+    "alzheim",
+    "guardianship",
+    "power of attorney",
+    "daily money manager",
+    "geriatric care manager"
+  ],
+  "problemTerms": [
+    "fraud",
+    "scam",
+    "financial abuse",
+    "exploitation",
+    "identity theft",
+    "missed payment",
+    "late fee",
+    "bill pay",
+    "bill payment",
+    "financial mistake",
+    "financial vulnerability",
+    "account takeover",
+    "elder justice"
+  ],
+  "excludeTerms": [
+    "crypto",
+    "bitcoin",
+    "ethereum",
+    "sports betting",
+    "fantasy sports",
+    "fashion week",
+    "movie review",
+    "music awards",
+    "video game",
+    "celebrity gossip"
+  ],
+  "preferredDomains": [
+    "DOMAIN_A",
+    "DOMAIN_B",
+    "DOMAIN_C",
+    "DOMAIN_D"
+  ],
+  "preferredFeeds": [
+    "google_cognitive_decline",
+    "google_elder_financial_fraud",
+    "google_caregiver_finance",
+    "google_linkedin_aging_parents",
+    "google_dementia_finance",
+    "google_guardianship_cases",
+    "google_linkedin_elder_fraud",
+    "google_power_of_attorney_abuse"
+  ],
+  "deprioritizedFeeds": [
+    "google_federal_reserve",
+    "google_doj_financial",
+    "google_sec_fraud"
+  ]
+}

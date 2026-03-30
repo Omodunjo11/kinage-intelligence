@@ -5,6 +5,7 @@ import path from "path";
 
 const cwd = process.cwd();
 const sourcePath = path.join(cwd, "data", "ranked_chunks.json");
+const curatedPath = path.join(cwd, "data", "curated_signals.json");
 const clayOutPath = path.join(cwd, "data", "clay_signal_candidates.json");
 const hubspotOutPath = path.join(cwd, "data", "hubspot_outreach_queue.json");
 
@@ -41,7 +42,14 @@ function ownerByDomain(domain) {
 }
 
 async function main() {
-  const file = await fs.readFile(sourcePath, "utf8");
+  let file;
+  let sourceLabel = "ranked_chunks.json";
+  try {
+    file = await fs.readFile(curatedPath, "utf8");
+    sourceLabel = "curated_signals.json";
+  } catch {
+    file = await fs.readFile(sourcePath, "utf8");
+  }
   const rows = JSON.parse(file);
   if (!Array.isArray(rows)) throw new Error("ranked_chunks.json must be an array");
 
@@ -95,6 +103,7 @@ async function main() {
   await fs.writeFile(clayOutPath, `${JSON.stringify(clayPayload, null, 2)}\n`);
   await fs.writeFile(hubspotOutPath, `${JSON.stringify(hubspotQueue, null, 2)}\n`);
 
+  console.log(`Using source: ${sourceLabel}`);
   console.log(`Clay payload rows: ${candidates.length}`);
   console.log(`HubSpot queue rows: ${hubspotQueue.length}`);
   console.log(`Wrote: ${clayOutPath}`);
