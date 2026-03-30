@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { getNormalizedArticles } from "@/lib/articles";
+
+import { getAuthorActivity } from "@/lib/articles";
 
 export async function GET() {
   try {
-    const data = await getNormalizedArticles();
+    const data = await getAuthorActivity();
     return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { error: "Could not load ranked_chunks.json" },
+      { error: "Could not compute author activity" },
       { status: 500 }
     );
   }

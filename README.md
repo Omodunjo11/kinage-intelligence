@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a Next.js intelligence dashboard for Kinage signal monitoring.
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
@@ -16,9 +16,32 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Primary dashboard route is `app/dashboard/page.tsx`.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Data and Operations
+
+Signal model and metric definitions:
+
+- `docs/signal-operating-model.md`
+
+Author enrichment and outreach workflow:
+
+- `docs/enrichment-and-outreach-workflow.md`
+
+Useful scripts:
+
+```bash
+# dry-run author scraping and write author activity snapshot
+npm run authors:enrich
+
+# persist scraped author values into data/ranked_chunks.json
+npm run authors:enrich:write
+
+# generate Clay candidate and HubSpot assignment queue payloads
+npm run outreach:build
+```
 
 ## Learn More
 

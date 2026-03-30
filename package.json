@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "authors:enrich": "node scripts/enrich-authors.mjs",
+    "authors:enrich:write": "node scripts/enrich-authors.mjs --write",
+    "outreach:build": "node scripts/build-outreach-queues.mjs"
   },
   "dependencies": {
     "next": "16.1.6",
