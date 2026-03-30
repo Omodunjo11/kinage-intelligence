@@ -1,0 +1,50 @@
+{
+  "version": "2026-03-30",
+  "defaults": {
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en"
+  },
+  "feeds": [
+    {
+      "name": "google_nyt_dmm",
+      "purpose": "NYT coverage of daily money managers",
+      "url": "https://news.google.com/rss/search?q=site:nytimes.com+%22daily+money+manager%22&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_nyt_elder_finance",
+      "purpose": "NYT elder finance stress + help-seeking stories",
+      "url": "https://news.google.com/rss/search?q=site:nytimes.com+(elder+OR+senior+OR+%22aging+parents%22)+(%22bill+pay%22+OR+%22financial+abuse%22+OR+scam+OR+fraud+OR+%22power+of+attorney%22)&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_nyt_guardianship_poa",
+      "purpose": "NYT guardianship and POA risk topics",
+      "url": "https://news.google.com/rss/search?q=site:nytimes.com+(guardianship+OR+%22power+of+attorney%22)+(%22older+adults%22+OR+elder+OR+senior)&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_nyt_cognitive_finance",
+      "purpose": "NYT dementia/cognitive decline impact on money decisions",
+      "url": "https://news.google.com/rss/search?q=site:nytimes.com+(dementia+OR+Alzheimer%27s+OR+%22cognitive+decline%22)+(finance+OR+fraud+OR+scam+OR+bills)&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_linkedin_dmm",
+      "purpose": "LinkedIn operator voices on DMM and family finance support",
+      "url": "https://news.google.com/rss/search?q=site:linkedin.com/posts+(%22daily+money+manager%22+OR+%22aging+parents%22+OR+%22elder+fraud%22+OR+%22caregiver+finance%22)&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_mixed_dmm_professional_channel",
+      "purpose": "Broader DMM professional channel and referrals",
+      "url": "https://news.google.com/rss/search?q=(%22daily+money+manager%22+OR+%22money+management+for+seniors%22)+(%22estate+lawyer%22+OR+%22financial+adviser%22+OR+%22care+manager%22+OR+referrals)&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_paywalled_tier1_publishers",
+      "purpose": "Catch tier-1 paywalled publications by metadata signal",
+      "url": "https://news.google.com/rss/search?q=(site:nytimes.com+OR+site:wsj.com+OR+site:bloomberg.com)+(%22daily+money+manager%22+OR+%22elder+fraud%22+OR+%22aging+parents%22+OR+%22caregiver+finance%22)&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "name": "google_dmm_noise_control",
+      "purpose": "DMM queries with explicit noise exclusions",
+      "url": "https://news.google.com/rss/search?q=(%22daily+money+manager%22+OR+%22elder+financial+abuse%22)+-crypto+-bitcoin+-sports+-fashion+-music+-gaming&hl=en-US&gl=US&ceid=US:en"
+    }
+  ]
+}

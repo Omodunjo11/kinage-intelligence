@@ -25,6 +25,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 Signal model and metric definitions:
 
 - `docs/signal-operating-model.md`
+- `docs/paywalled-source-strategy.md`
 
 Author enrichment and outreach workflow:
 
@@ -45,6 +46,10 @@ npm run signals:curate
 # generate Clay candidate and HubSpot assignment queue payloads
 npm run outreach:build
 ```
+
+Google News feed pack (NYT + LinkedIn + DMM):
+
+- `config/google-news-feeds.json`
 
 ## Learn More
 
