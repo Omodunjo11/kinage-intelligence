@@ -57,12 +57,12 @@ export function evaluateKinageFit(input: FitInput): KinageFit {
     ? 0.6
     : 0;
 
-  const sourceText = `${input.feedName ?? ""} ${input.source ?? ""}`;
+  const sourceText = `${input.feedName ?? ""} ${input.source ?? ""}`.toLowerCase();
   const isPreferredFeed = KINAGE_PROFILE.preferredFeeds.some((term) =>
-    sourceText.includes(term)
+    sourceText.includes(String(term).toLowerCase())
   );
   const isDeprioritizedFeed = KINAGE_PROFILE.deprioritizedFeeds.some((term) =>
-    sourceText.includes(term)
+    sourceText.includes(String(term).toLowerCase())
   );
   const feedScore = isPreferredFeed ? 1 : isDeprioritizedFeed ? 0 : 0.5;
 
@@ -77,6 +77,17 @@ export function evaluateKinageFit(input: FitInput): KinageFit {
   const hasAudience = audienceHits.length > 0;
   const hasProblem = problemHits.length > 0;
   const hasExclusions = excludeHits.length > 0;
+  const requireBothContexts = KINAGE_PROFILE.requireBothContexts ?? true;
+  const contextPass = requireBothContexts
+    ? hasAudience && hasProblem
+    : hasAudience || hasProblem;
+  const singleContextPass =
+    !requireBothContexts &&
+    (hasAudience !== hasProblem) &&
+    fitScore >= (KINAGE_PROFILE.allowSingleContextWithScore ?? 0.55);
+  const preferredFeedPass =
+    isPreferredFeed &&
+    fitScore >= (KINAGE_PROFILE.allowPreferredFeedWithScore ?? 0.5);
 
   if (!hasAudience) reasons.push("no_audience_context");
   if (!hasProblem) reasons.push("no_problem_context");
@@ -84,9 +95,15 @@ export function evaluateKinageFit(input: FitInput): KinageFit {
   if (domainAlign === 0) reasons.push("domain_not_core");
   if (isDeprioritizedFeed) reasons.push("deprioritized_feed");
 
-  const bypass = priority === "CRITICAL" && fitScore >= KINAGE_PROFILE.priorityBypassFitScore;
+  const bypass =
+    priority === "CRITICAL" &&
+    fitScore >= KINAGE_PROFILE.priorityBypassFitScore;
   const accepted =
-    (hasAudience && hasProblem && !hasExclusions && fitScore >= KINAGE_PROFILE.minFitScore) ||
+    ((contextPass &&
+      !hasExclusions &&
+      fitScore >= KINAGE_PROFILE.minFitScore) ||
+      (singleContextPass && !hasExclusions) ||
+      (preferredFeedPass && !hasExclusions)) ||
     bypass;
 
   return {

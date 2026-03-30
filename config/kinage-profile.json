@@ -1,7 +1,10 @@
 {
   "version": "2026-03-30",
-  "minFitScore": 0.55,
-  "priorityBypassFitScore": 0.8,
+  "minFitScore": 0.4,
+  "priorityBypassFitScore": 0.7,
+  "requireBothContexts": false,
+  "allowSingleContextWithScore": 0.52,
+  "allowPreferredFeedWithScore": 0.45,
   "audienceTerms": [
     "aging parent",
     "older adult",
@@ -59,8 +62,6 @@
     "google_power_of_attorney_abuse"
   ],
   "deprioritizedFeeds": [
-    "google_federal_reserve",
-    "google_doj_financial",
-    "google_sec_fraud"
+    "google_federal_reserve"
   ]
 }

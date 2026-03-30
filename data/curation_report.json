@@ -1,45 +1,99 @@
 {
-  "generated_at": "2026-03-30T20:34:08.831Z",
+  "generated_at": "2026-03-30T20:52:25.781Z",
   "profile_version": "2026-03-30",
   "source_count": 543,
-  "curated_count": 119,
-  "acceptance_rate": 0.219,
+  "curated_count": 291,
+  "acceptance_rate": 0.536,
   "feed_precision": [
+    {
+      "feed": "google_caregiver_finance",
+      "total": 22,
+      "accepted": 22,
+      "precision": 1
+    },
+    {
+      "feed": "google_dementia_finance",
+      "total": 24,
+      "accepted": 24,
+      "precision": 1
+    },
     {
       "feed": "google_elder_financial_fraud",
       "total": 24,
-      "accepted": 21,
-      "precision": 0.88
-    },
-    {
-      "feed": "google_linkedin_elder_fraud",
-      "total": 23,
-      "accepted": 18,
-      "precision": 0.78
+      "accepted": 24,
+      "precision": 1
     },
     {
       "feed": "google_guardianship_cases",
       "total": 24,
-      "accepted": 16,
-      "precision": 0.67
+      "accepted": 22,
+      "precision": 0.92
     },
     {
-      "feed": "google_cognitive_decline",
-      "total": 25,
-      "accepted": 16,
-      "precision": 0.64
-    },
-    {
-      "feed": "google_caregiver_finance",
-      "total": 22,
-      "accepted": 13,
-      "precision": 0.59
+      "feed": "google_linkedin_elder_fraud",
+      "total": 23,
+      "accepted": 21,
+      "precision": 0.91
     },
     {
       "feed": "google_linkedin_aging_parents",
       "total": 24,
+      "accepted": 19,
+      "precision": 0.79
+    },
+    {
+      "feed": "google_linkedin_eldercare",
+      "total": 47,
+      "accepted": 37,
+      "precision": 0.79
+    },
+    {
+      "feed": "google_cognitive_decline",
+      "total": 25,
+      "accepted": 19,
+      "precision": 0.76
+    },
+    {
+      "feed": "google_alzheimers_site",
+      "total": 23,
+      "accepted": 17,
+      "precision": 0.74
+    },
+    {
+      "feed": "google_linkedin_power_of_attorney",
+      "total": 22,
+      "accepted": 14,
+      "precision": 0.64
+    },
+    {
+      "feed": "google_power_of_attorney_abuse",
+      "total": 23,
+      "accepted": 12,
+      "precision": 0.52
+    },
+    {
+      "feed": "google_linkedin_financial_vulnerability",
+      "total": 25,
+      "accepted": 12,
+      "precision": 0.48
+    },
+    {
+      "feed": "google_linkedin_guardianship",
+      "total": 25,
+      "accepted": 12,
+      "precision": 0.48
+    },
+    {
+      "feed": "google_linkedin_dementia",
+      "total": 28,
+      "accepted": 10,
+      "precision": 0.36
+    },
+    {
+      "feed": "google_federal_reserve",
+      "total": 23,
       "accepted": 8,
-      "precision": 0.33
+      "precision": 0.35
     },
     {
       "feed": "google_linkedin_caregiver_fraud",
@@ -48,94 +102,40 @@
       "precision": 0.33
     },
     {
-      "feed": "google_linkedin_power_of_attorney",
-      "total": 22,
-      "accepted": 6,
-      "precision": 0.27
-    },
-    {
-      "feed": "google_dementia_finance",
-      "total": 24,
-      "accepted": 6,
-      "precision": 0.25
-    },
-    {
-      "feed": "google_power_of_attorney_abuse",
-      "total": 23,
-      "accepted": 5,
-      "precision": 0.22
-    },
-    {
-      "feed": "google_linkedin_financial_vulnerability",
-      "total": 25,
-      "accepted": 4,
-      "precision": 0.16
-    },
-    {
-      "feed": "google_linkedin_eldercare",
-      "total": 47,
-      "accepted": 4,
-      "precision": 0.09
-    },
-    {
-      "feed": "google_ftc_enforcement",
-      "total": 27,
-      "accepted": 1,
-      "precision": 0.04
-    },
-    {
-      "feed": "google_linkedin_guardianship",
-      "total": 25,
-      "accepted": 0,
-      "precision": 0
-    },
-    {
-      "feed": "google_linkedin_dementia",
-      "total": 28,
-      "accepted": 0,
-      "precision": 0
-    },
-    {
-      "feed": "google_alzheimers_site",
-      "total": 23,
-      "accepted": 0,
-      "precision": 0
-    },
-    {
-      "feed": "google_federal_reserve",
-      "total": 23,
-      "accepted": 0,
-      "precision": 0
-    },
-    {
-      "feed": "google_sec_fraud",
-      "total": 21,
-      "accepted": 0,
-      "precision": 0
+      "feed": "google_fbi_financial_crimes",
+      "total": 33,
+      "accepted": 7,
+      "precision": 0.21
     },
     {
       "feed": "google_nih_alzheimers",
       "total": 27,
-      "accepted": 0,
-      "precision": 0
-    },
-    {
-      "feed": "google_fbi_financial_crimes",
-      "total": 33,
-      "accepted": 0,
-      "precision": 0
+      "accepted": 4,
+      "precision": 0.15
     },
     {
       "feed": "google_linkedin_cognitive_decline",
       "total": 25,
-      "accepted": 0,
-      "precision": 0
+      "accepted": 2,
+      "precision": 0.08
+    },
+    {
+      "feed": "google_ftc_enforcement",
+      "total": 27,
+      "accepted": 2,
+      "precision": 0.07
+    },
+    {
+      "feed": "google_sec_fraud",
+      "total": 21,
+      "accepted": 1,
+      "precision": 0.05
     },
     {
       "feed": "google_doj_financial",
       "total": 25,
-      "accepted": 0,
-      "precision": 0
+      "accepted": 1,
+      "precision": 0.04
     }
   ]
 }

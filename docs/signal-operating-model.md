@@ -18,6 +18,9 @@ Key controls:
 - `deprioritizedFeeds`: penalizes low-yield feeds.
 - `minFitScore`: acceptance threshold.
 - `priorityBypassFitScore`: allows very strong critical signals through.
+- `requireBothContexts`: if `true`, signal must match audience + problem terms.
+- `allowSingleContextWithScore`: allows one-sided context match at higher fit score.
+- `allowPreferredFeedWithScore`: allows trusted-feed signals at moderate fit score.
 
 To tune intake specificity:
 

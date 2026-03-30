@@ -61,12 +61,26 @@ function evaluate(row, profile) {
     feedScore * 0.1;
 
   const level = priority(score);
+  const requireBothContexts = profile.requireBothContexts ?? true;
+  const hasAudience = audienceHits.length > 0;
+  const hasProblem = problemHits.length > 0;
+  const contextPass = requireBothContexts
+    ? hasAudience && hasProblem
+    : hasAudience || hasProblem;
+  const singleContextPass =
+    !requireBothContexts &&
+    (hasAudience !== hasProblem) &&
+    fitScore >= (profile.allowSingleContextWithScore ?? 0.55);
+  const preferredFeedPass =
+    preferredFeed &&
+    fitScore >= (profile.allowPreferredFeedWithScore ?? 0.5);
   const bypass = level === "CRITICAL" && fitScore >= profile.priorityBypassFitScore;
   const accepted =
-    ((audienceHits.length > 0 &&
-      problemHits.length > 0 &&
+    ((contextPass &&
       excludeHits.length === 0 &&
       fitScore >= profile.minFitScore) ||
+      (singleContextPass && excludeHits.length === 0) ||
+      (preferredFeedPass && excludeHits.length === 0) ||
       bypass) &&
     score > 0;
 
