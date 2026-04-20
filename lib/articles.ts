@@ -4,11 +4,14 @@ import path from "path";
 import { evaluateKinageFit } from "@/lib/kinageProfile";
 import { DOMAIN_MAP, type DomainKey, getPriority, resolveDomains } from "@/lib/signalModel";
 
+export type AgeBucket = "today" | "this_week" | "this_month" | "older";
+
 export type RawChunk = {
   id?: string;
   text?: string;
   score?: number;
   ingested_at?: string;
+  age_bucket?: AgeBucket;
   summary?: string;
   why_it_matters?: string;
   risk_type?: string;
@@ -43,6 +46,7 @@ export type NormalizedArticle = {
   published: string;
   score: number;
   relevance: number;
+  ageBucket: AgeBucket;
   priority: ReturnType<typeof getPriority>["level"];
   priorityGuidance: string;
   domainTags: DomainKey[];
@@ -128,6 +132,7 @@ export function normalizeChunk(raw: RawChunk): NormalizedArticle | null {
     published: m.published ?? raw.ingested_at ?? "",
     score,
     relevance: score,
+    ageBucket: raw.age_bucket ?? "older",
     priority: priority.level,
     priorityGuidance: priority.guidance,
     domainTags: resolved.domains,
