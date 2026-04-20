@@ -15,6 +15,7 @@ import {
 } from "@/lib/signalModel";
 
 type AgeBucket = "today" | "this_week" | "this_month" | "older";
+type RecencyBucket = "newer" | "older";
 
 const AGE_BUCKET_LABELS: Record<AgeBucket, string> = {
   today: "Today",
@@ -39,6 +40,9 @@ type Article = {
   domainTags: DomainKey[];
   primaryDomain: DomainKey | null;
   ageBucket: AgeBucket;
+  isNewIngest: boolean;
+  recencyBucket: RecencyBucket;
+  ingestedAt: string;
   summary?: string;
   why_it_matters?: string;
   risk_type?: string;
@@ -56,6 +60,7 @@ type AuthorActivity = {
 };
 
 type DomainFilter = "ALL" | "UNASSIGNED" | DomainKey;
+type RecencyFilter = "ALL" | "NEWER" | "OLDER";
 
 const PRIORITY_OPTIONS: Array<PriorityLevel | "ALL"> = [
   "ALL",
@@ -166,6 +171,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [domainFilter, setDomainFilter] = useState<DomainFilter>("ALL");
+  const [recencyFilter, setRecencyFilter] = useState<RecencyFilter>("ALL");
   const [priorityFilter, setPriorityFilter] = useState<PriorityLevel | "ALL">("ALL");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set<string>());
@@ -233,8 +239,21 @@ export default function DashboardPage() {
     };
   }, [articles]);
 
+  const recencyCounts = useMemo(
+    () => ({
+      newer: articles.filter((article) => article.recencyBucket === "newer").length,
+      older: articles.filter((article) => article.recencyBucket === "older").length,
+    }),
+    [articles]
+  );
+
   const visible = useMemo(() => {
     return articles.filter((article) => {
+      if (recencyFilter !== "ALL") {
+        if (recencyFilter === "NEWER" && article.recencyBucket !== "newer") return false;
+        if (recencyFilter === "OLDER" && article.recencyBucket !== "older") return false;
+      }
+
       if (domainFilter !== "ALL") {
         if (domainFilter === "UNASSIGNED") {
           if (article.primaryDomain !== null) return false;
@@ -259,7 +278,7 @@ export default function DashboardPage() {
       }
       return true;
     });
-  }, [articles, domainFilter, priorityFilter, search]);
+  }, [articles, recencyFilter, domainFilter, priorityFilter, search]);
 
   const avgRelevance = useMemo(() => {
     if (visible.length === 0) return 0;
@@ -586,6 +605,32 @@ export default function DashboardPage() {
           font-size: 10px;
           color: #475569;
         }
+        .recency-box {
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          margin-top: 12px;
+          overflow: hidden;
+          background: #ffffff;
+        }
+        .recency-box-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          padding: 12px 12px 8px;
+          background: #f8fafc;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .recency-box-title {
+          font-family: "IBM Plex Mono", monospace;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: #0f172a;
+        }
+        .recency-box-subtitle {
+          font-size: 12px;
+          color: #64748b;
+        }
         .age-divider {
           display: flex;
           align-items: center;
@@ -722,6 +767,34 @@ export default function DashboardPage() {
             )}
 
             <div className="section-title" style={{ marginTop: 16 }}>
+              Recency
+            </div>
+            <button
+              type="button"
+              className={`filter-item ${recencyFilter === "ALL" ? "active" : ""}`}
+              onClick={() => setRecencyFilter("ALL")}
+            >
+              <span>All ingested</span>
+              <span>{articles.length}</span>
+            </button>
+            <button
+              type="button"
+              className={`filter-item ${recencyFilter === "NEWER" ? "active" : ""}`}
+              onClick={() => setRecencyFilter("NEWER")}
+            >
+              <span>Newer ingest</span>
+              <span>{recencyCounts.newer}</span>
+            </button>
+            <button
+              type="button"
+              className={`filter-item ${recencyFilter === "OLDER" ? "active" : ""}`}
+              onClick={() => setRecencyFilter("OLDER")}
+            >
+              <span>Previously ingested</span>
+              <span>{recencyCounts.older}</span>
+            </button>
+
+            <div className="section-title" style={{ marginTop: 16 }}>
               Priority
             </div>
             {PRIORITY_OPTIONS.map((priority) => {
@@ -751,6 +824,8 @@ export default function DashboardPage() {
               <br />
               Severity is content-risk intensity and can differ from priority.
               <br />
+              Newer ingest highlights items from the latest ingest window.
+              <br />
               {cadenceText}
             </div>
           </aside>
@@ -764,6 +839,8 @@ export default function DashboardPage() {
               />
               <div className="toolbar-meta">
                 {visible.length} of {articles.length} signals shown
+                <br />
+                Newer {recencyCounts.newer} · Older {recencyCounts.older}
                 <br />
                 Priority action window: Critical &lt; 24h, High this week
               </div>
@@ -784,145 +861,182 @@ export default function DashboardPage() {
             )}
 
             {!loading && (() => {
-              const grouped = new Map<AgeBucket, Article[]>();
-              for (const article of visible) {
-                const b = article.ageBucket ?? "older";
-                if (!grouped.has(b)) grouped.set(b, []);
-                grouped.get(b)!.push(article);
-              }
+              const sections = [
+                {
+                  key: "newer" as const,
+                  title: "Newer Ingest",
+                  subtitle: "Latest ingest window",
+                  rows: visible.filter((article) => article.recencyBucket === "newer"),
+                },
+                {
+                  key: "older" as const,
+                  title: "Previously Ingested",
+                  subtitle: "Prior ingest windows",
+                  rows: visible.filter((article) => article.recencyBucket === "older"),
+                },
+              ].filter((section) => section.rows.length > 0);
 
               let globalIndex = 0;
-              return AGE_BUCKET_ORDER.flatMap((bucket) => {
-                const group = grouped.get(bucket);
-                if (!group || group.length === 0) return [];
+              return sections.map((section) => {
+                const grouped = new Map<AgeBucket, Article[]>();
+                for (const article of section.rows) {
+                  const bucket = article.ageBucket ?? "older";
+                  if (!grouped.has(bucket)) grouped.set(bucket, []);
+                  grouped.get(bucket)!.push(article);
+                }
 
-                return [
-                  <div key={`divider-${bucket}`} className="age-divider">
-                    <span className="age-divider-label">
-                      {AGE_BUCKET_LABELS[bucket]} · {group.length}
-                    </span>
-                    <div className="age-divider-line" />
-                  </div>,
-                  ...group.map((article) => {
-                    const index = globalIndex++;
-                    const domain = article.primaryDomain
-                      ? DOMAIN_MAP[article.primaryDomain]
-                      : null;
-                    const priority = getPriority(article.relevance);
-                    const severity = getSeverityMeta(article.severity);
-                    const isExpanded = expanded.has(article.id);
+                return (
+                  <div key={section.key} className="recency-box">
+                    <div className="recency-box-header">
+                      <div className="recency-box-title">{section.title}</div>
+                      <div className="recency-box-subtitle">
+                        {section.subtitle} · {section.rows.length}
+                      </div>
+                    </div>
+                    {AGE_BUCKET_ORDER.flatMap((bucket) => {
+                      const group = grouped.get(bucket);
+                      if (!group || group.length === 0) return [];
 
-                    return (
-                      <div key={article.id}>
-                        <button
-                          type="button"
-                          className="signal-row"
-                          onClick={() => toggleExpanded(article.id)}
-                        >
-                          <div style={{ color: "#64748b", fontSize: 12 }}>
-                            {String(index + 1).padStart(2, "0")}
-                          </div>
-                          <div>
-                            <div className="signal-title">{article.title}</div>
-                            <div>
-                              {domain ? (
-                                <span
-                                  className="pill"
+                      return [
+                        <div key={`${section.key}-divider-${bucket}`} className="age-divider">
+                          <span className="age-divider-label">
+                            {AGE_BUCKET_LABELS[bucket]} · {group.length}
+                          </span>
+                          <div className="age-divider-line" />
+                        </div>,
+                        ...group.map((article) => {
+                          const index = globalIndex++;
+                          const domain = article.primaryDomain
+                            ? DOMAIN_MAP[article.primaryDomain]
+                            : null;
+                          const priority = getPriority(article.relevance);
+                          const severity = getSeverityMeta(article.severity);
+                          const isExpanded = expanded.has(article.id);
+
+                          return (
+                            <div key={article.id}>
+                              <button
+                                type="button"
+                                className="signal-row"
+                                onClick={() => toggleExpanded(article.id)}
+                              >
+                                <div style={{ color: "#64748b", fontSize: 12 }}>
+                                  {String(index + 1).padStart(2, "0")}
+                                </div>
+                                <div>
+                                  <div className="signal-title">{article.title}</div>
+                                  <div>
+                                    {domain ? (
+                                      <span
+                                        className="pill"
+                                        style={{
+                                          borderColor: `${domain.color}55`,
+                                          color: domain.color,
+                                          background: `${domain.color}12`,
+                                        }}
+                                      >
+                                        {domain.label}
+                                      </span>
+                                    ) : (
+                                      <span className="pill">Unassigned topic</span>
+                                    )}
+                                    {article.domainTags
+                                      .filter((d) => d !== article.primaryDomain)
+                                      .slice(0, 2)
+                                      .map((domainKey) => (
+                                        <span className="pill" key={domainKey}>
+                                          {DOMAIN_MAP[domainKey].label}
+                                        </span>
+                                      ))}
+                                  </div>
+                                </div>
+                                <div style={{ color: "#334155", fontSize: 12 }}>
+                                  {shortSource(article.source)}
+                                </div>
+                                <div
                                   style={{
-                                    borderColor: `${domain.color}55`,
-                                    color: domain.color,
-                                    background: `${domain.color}12`,
+                                    fontFamily: "IBM Plex Mono, monospace",
+                                    fontSize: 12,
                                   }}
                                 >
-                                  {domain.label}
-                                </span>
-                              ) : (
-                                <span className="pill">Unassigned topic</span>
-                              )}
-                              {article.domainTags
-                                .filter((d) => d !== article.primaryDomain)
-                                .slice(0, 2)
-                                .map((domainKey) => (
-                                  <span className="pill" key={domainKey}>
-                                    {DOMAIN_MAP[domainKey].label}
+                                  {article.relevance.toFixed(3)}
+                                </div>
+                                <div>
+                                  <span
+                                    className="pill"
+                                    style={{
+                                      borderColor: `${priority.color}55`,
+                                      color: priority.color,
+                                      background: priority.bg,
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {priority.level}
                                   </span>
-                                ))}
-                            </div>
-                          </div>
-                          <div style={{ color: "#334155", fontSize: 12 }}>
-                            {shortSource(article.source)}
-                          </div>
-                          <div style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 12 }}>
-                            {article.relevance.toFixed(3)}
-                          </div>
-                          <div>
-                            <span
-                              className="pill"
-                              style={{
-                                borderColor: `${priority.color}55`,
-                                color: priority.color,
-                                background: priority.bg,
-                                fontWeight: 600,
-                              }}
-                            >
-                              {priority.level}
-                            </span>
-                          </div>
-                          <div>
-                            {severity ? (
-                              <span
-                                className="pill"
-                                style={{
-                                  borderColor: `${severity.color}55`,
-                                  color: severity.color,
-                                  background: `${severity.color}12`,
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {severity.label}
-                              </span>
-                            ) : (
-                              <span className="pill">Not set</span>
-                            )}
-                          </div>
-                        </button>
-                        {isExpanded && (
-                          <div className="expand">
-                            <h4>Summary</h4>
-                            <p>{article.summary ?? "No summary generated yet for this signal."}</p>
-                            <h4>Why it matters</h4>
-                            <p>
-                              {article.why_it_matters ??
-                                "No strategic impact note generated yet."}
-                            </p>
-                            <div className="meta-row">
-                              <span className="meta-chip">
-                                Priority guidance: {article.priorityGuidance}
-                              </span>
-                              <span className="meta-chip">
-                                Published: {formatDate(article.published)}
-                              </span>
-                              {article.author && (
-                                <span className="meta-chip">Author: {article.author}</span>
-                              )}
-                              {article.url && (
-                                <a
-                                  className="meta-chip"
-                                  href={article.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ textDecoration: "none", color: "#0f172a" }}
-                                >
-                                  Open source ↗
-                                </a>
+                                </div>
+                                <div>
+                                  {severity ? (
+                                    <span
+                                      className="pill"
+                                      style={{
+                                        borderColor: `${severity.color}55`,
+                                        color: severity.color,
+                                        background: `${severity.color}12`,
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      {severity.label}
+                                    </span>
+                                  ) : (
+                                    <span className="pill">Not set</span>
+                                  )}
+                                </div>
+                              </button>
+                              {isExpanded && (
+                                <div className="expand">
+                                  <h4>Summary</h4>
+                                  <p>
+                                    {article.summary ?? "No summary generated yet for this signal."}
+                                  </p>
+                                  <h4>Why it matters</h4>
+                                  <p>
+                                    {article.why_it_matters ??
+                                      "No strategic impact note generated yet."}
+                                  </p>
+                                  <div className="meta-row">
+                                    <span className="meta-chip">
+                                      Priority guidance: {article.priorityGuidance}
+                                    </span>
+                                    <span className="meta-chip">
+                                      Ingest: {article.isNewIngest ? "Newer" : "Previously ingested"}
+                                    </span>
+                                    <span className="meta-chip">
+                                      Published: {formatDate(article.published)}
+                                    </span>
+                                    {article.author && (
+                                      <span className="meta-chip">Author: {article.author}</span>
+                                    )}
+                                    {article.url && (
+                                      <a
+                                        className="meta-chip"
+                                        href={article.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textDecoration: "none", color: "#0f172a" }}
+                                      >
+                                        Open source ↗
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
                               )}
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }),
-                ];
+                          );
+                        }),
+                      ];
+                    })}
+                  </div>
+                );
               });
             })()}
 

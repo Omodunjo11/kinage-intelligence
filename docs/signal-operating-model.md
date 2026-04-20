@@ -54,6 +54,34 @@ Fix applied:
   - Caregiver/family coordination -> `DOMAIN_B`
 - Added model version marker (`DOMAIN_MODEL_VERSION`) so changes are traceable.
 
+## 1b) Ingest recency labeling
+
+Signals now carry ingest-recency metadata:
+
+- `is_new_ingest` (`true`/`false`)
+- `ingest_recency_bucket` (`newer` or `older`)
+- `age_bucket` (`today`, `this_week`, `this_month`, `older`)
+
+`ingest_recency_bucket` is computed from `ingested_at` relative to the latest ingest window.
+Window size is controlled by `config/kinage-profile.json`:
+
+- `recencyWindowHours` (default `72`)
+
+Dashboard support:
+
+- Sidebar filter: `All ingested`, `Newer ingest`, `Previously ingested`
+- Feed is rendered in separate boxes for newer vs previously ingested items.
+
+Recommended `kinage-al` contract (source side):
+
+- Populate `ingested_at` per signal.
+- Populate `age_bucket` if available (`today` | `this_week` | `this_month` | `older`).
+- Populate `is_new_ingest` + `ingest_recency_bucket` when run context is known.
+
+`kinage-app` fallback:
+
+- If source does not provide recency fields, app-side normalization derives them from timestamps.
+
 ## 2) Relevance, Priority, Severity, and Score
 
 ### Relevance (Score)

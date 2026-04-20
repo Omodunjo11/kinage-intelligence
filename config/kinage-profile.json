@@ -5,6 +5,7 @@
   "requireBothContexts": false,
   "allowSingleContextWithScore": 0.52,
   "allowPreferredFeedWithScore": 0.45,
+  "recencyWindowHours": 72,
   "audienceTerms": [
     "aging parent",
     "older adult",

@@ -5,6 +5,7 @@ import { evaluateKinageFit } from "@/lib/kinageProfile";
 import { DOMAIN_MAP, type DomainKey, getPriority, resolveDomains } from "@/lib/signalModel";
 
 export type AgeBucket = "today" | "this_week" | "this_month" | "older";
+export type IngestRecencyBucket = "newer" | "older";
 
 export type RawChunk = {
   id?: string;
@@ -12,6 +13,8 @@ export type RawChunk = {
   score?: number;
   ingested_at?: string;
   age_bucket?: AgeBucket;
+  is_new_ingest?: boolean;
+  ingest_recency_bucket?: IngestRecencyBucket;
   summary?: string;
   why_it_matters?: string;
   risk_type?: string;
@@ -47,6 +50,9 @@ export type NormalizedArticle = {
   score: number;
   relevance: number;
   ageBucket: AgeBucket;
+  isNewIngest: boolean;
+  recencyBucket: IngestRecencyBucket;
+  ingestedAt: string;
   priority: ReturnType<typeof getPriority>["level"];
   priorityGuidance: string;
   domainTags: DomainKey[];
@@ -72,6 +78,23 @@ export type AuthorActivity = {
 
 const DATA_FILE = path.join(process.cwd(), "data", "ranked_chunks.json");
 
+function parseTimestamp(value: string | undefined): number | null {
+  if (!value) return null;
+  const ts = Date.parse(value);
+  return Number.isFinite(ts) ? ts : null;
+}
+
+function deriveAgeBucket(published: string, nowTs = Date.now()): AgeBucket {
+  const ts = parseTimestamp(published);
+  if (ts === null) return "older";
+  const diff = Math.max(nowTs - ts, 0);
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (diff <= dayMs) return "today";
+  if (diff <= 7 * dayMs) return "this_week";
+  if (diff <= 30 * dayMs) return "this_month";
+  return "older";
+}
+
 async function readRankedChunks(): Promise<RawChunk[]> {
   const file = await fs.readFile(DATA_FILE, "utf-8");
   const data = JSON.parse(file);
@@ -92,7 +115,10 @@ function parseAuthor(m: RawChunk["metadata"]): string | undefined {
   return undefined;
 }
 
-export function normalizeChunk(raw: RawChunk): NormalizedArticle | null {
+export function normalizeChunk(
+  raw: RawChunk,
+  options?: { latestIngestTs?: number | null; recencyWindowHours?: number; nowTs?: number }
+): NormalizedArticle | null {
   const m = raw.metadata ?? {};
   const title =
     m.title ||
@@ -122,6 +148,22 @@ export function normalizeChunk(raw: RawChunk): NormalizedArticle | null {
     domainTags: resolved.domains,
     primaryDomain: resolved.primaryDomain,
   });
+  const nowTs = options?.nowTs ?? Date.now();
+  const published = m.published ?? raw.ingested_at ?? "";
+  const ingestedAt = raw.ingested_at ?? published;
+  const ageBucket = raw.age_bucket ?? deriveAgeBucket(published, nowTs);
+  const recencyWindowMs = Math.max(options?.recencyWindowHours ?? 72, 1) * 60 * 60 * 1000;
+  const currentIngestTs = parseTimestamp(ingestedAt);
+  const latestIngestTs = options?.latestIngestTs ?? null;
+  const derivedIsNewIngest =
+    latestIngestTs !== null &&
+    currentIngestTs !== null &&
+    latestIngestTs - currentIngestTs <= recencyWindowMs;
+  const isNewIngest =
+    typeof raw.is_new_ingest === "boolean" ? raw.is_new_ingest : derivedIsNewIngest;
+  const recencyBucket: IngestRecencyBucket =
+    raw.ingest_recency_bucket ??
+    (isNewIngest ? "newer" : "older");
 
   return {
     id: raw.id ?? Math.random().toString(36).slice(2),
@@ -129,10 +171,13 @@ export function normalizeChunk(raw: RawChunk): NormalizedArticle | null {
     url: m.url ?? "",
     source: m.source ?? m.feed_name ?? "unknown",
     feedName: m.feed_name ?? "",
-    published: m.published ?? raw.ingested_at ?? "",
+    published,
     score,
     relevance: score,
-    ageBucket: raw.age_bucket ?? "older",
+    ageBucket,
+    isNewIngest,
+    recencyBucket,
+    ingestedAt,
     priority: priority.level,
     priorityGuidance: priority.guidance,
     domainTags: resolved.domains,
@@ -159,12 +204,21 @@ export async function getArticles(): Promise<RawChunk[]> {
 
 export async function getNormalizedArticles(options?: {
   includeRejected?: boolean;
+  recencyWindowHours?: number;
 }): Promise<NormalizedArticle[]> {
   const raw = await readRankedChunks();
   const includeRejected = options?.includeRejected ?? false;
+  const recencyWindowHours = options?.recencyWindowHours ?? 72;
+  const nowTs = Date.now();
+  const latestIngestTs = raw
+    .map((chunk) => parseTimestamp(chunk.ingested_at))
+    .filter((ts): ts is number => ts !== null)
+    .sort((a, b) => b - a)[0] ?? null;
 
   const normalized = raw
-    .map(normalizeChunk)
+    .map((chunk) =>
+      normalizeChunk(chunk, { latestIngestTs, recencyWindowHours, nowTs })
+    )
     .filter((article): article is NormalizedArticle => article !== null)
     .sort((a, b) => b.score - a.score);
 

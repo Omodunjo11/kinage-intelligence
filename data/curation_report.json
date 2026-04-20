@@ -1,99 +1,141 @@
 {
-  "generated_at": "2026-03-30T20:52:25.781Z",
+  "generated_at": "2026-04-20T20:01:12.653Z",
   "profile_version": "2026-03-30",
-  "source_count": 543,
-  "curated_count": 291,
-  "acceptance_rate": 0.536,
+  "latest_ingest_at": "2026-04-20T23:20:57.566Z",
+  "recency_window_hours": 72,
+  "source_count": 1140,
+  "curated_count": 558,
+  "acceptance_rate": 0.489,
+  "recency_breakdown": {
+    "newer": 355,
+    "older": 203,
+    "age_buckets": {
+      "today": 2,
+      "this_week": 23,
+      "this_month": 65,
+      "older": 468
+    }
+  },
   "feed_precision": [
     {
-      "feed": "google_caregiver_finance",
-      "total": 22,
-      "accepted": 22,
+      "feed": "google_elder_financial_fraud",
+      "total": 38,
+      "accepted": 38,
       "precision": 1
     },
     {
       "feed": "google_dementia_finance",
-      "total": 24,
-      "accepted": 24,
-      "precision": 1
+      "total": 42,
+      "accepted": 41,
+      "precision": 0.98
     },
     {
-      "feed": "google_elder_financial_fraud",
-      "total": 24,
-      "accepted": 24,
-      "precision": 1
-    },
-    {
-      "feed": "google_guardianship_cases",
-      "total": 24,
-      "accepted": 22,
-      "precision": 0.92
+      "feed": "google_caregiver_finance",
+      "total": 31,
+      "accepted": 30,
+      "precision": 0.97
     },
     {
       "feed": "google_linkedin_elder_fraud",
-      "total": 23,
-      "accepted": 21,
-      "precision": 0.91
+      "total": 47,
+      "accepted": 45,
+      "precision": 0.96
+    },
+    {
+      "feed": "google_guardianship_cases",
+      "total": 33,
+      "accepted": 31,
+      "precision": 0.94
+    },
+    {
+      "feed": "google_finra_senior_investor",
+      "total": 18,
+      "accepted": 16,
+      "precision": 0.89
     },
     {
       "feed": "google_linkedin_aging_parents",
-      "total": 24,
-      "accepted": 19,
-      "precision": 0.79
-    },
-    {
-      "feed": "google_linkedin_eldercare",
-      "total": 47,
-      "accepted": 37,
-      "precision": 0.79
+      "total": 49,
+      "accepted": 39,
+      "precision": 0.8
     },
     {
       "feed": "google_cognitive_decline",
-      "total": 25,
-      "accepted": 19,
-      "precision": 0.76
+      "total": 35,
+      "accepted": 27,
+      "precision": 0.77
+    },
+    {
+      "feed": "google_cfpb_older_adults",
+      "total": 24,
+      "accepted": 17,
+      "precision": 0.71
     },
     {
       "feed": "google_alzheimers_site",
-      "total": 23,
-      "accepted": 17,
-      "precision": 0.74
+      "total": 43,
+      "accepted": 29,
+      "precision": 0.67
     },
     {
-      "feed": "google_linkedin_power_of_attorney",
-      "total": 22,
-      "accepted": 14,
+      "feed": "google_wsj_elder_fraud",
+      "total": 23,
+      "accepted": 15,
+      "precision": 0.65
+    },
+    {
+      "feed": "google_linkedin_eldercare",
+      "total": 74,
+      "accepted": 47,
       "precision": 0.64
     },
     {
-      "feed": "google_power_of_attorney_abuse",
-      "total": 23,
-      "accepted": 12,
-      "precision": 0.52
+      "feed": "google_linkedin_power_of_attorney",
+      "total": 48,
+      "accepted": 30,
+      "precision": 0.63
     },
     {
-      "feed": "google_linkedin_financial_vulnerability",
-      "total": 25,
-      "accepted": 12,
-      "precision": 0.48
+      "feed": "google_power_of_attorney_abuse",
+      "total": 39,
+      "accepted": 24,
+      "precision": 0.62
+    },
+    {
+      "feed": "google_nyt_elder_fraud",
+      "total": 23,
+      "accepted": 14,
+      "precision": 0.61
+    },
+    {
+      "feed": "google_aarp_fraud_watch",
+      "total": 19,
+      "accepted": 9,
+      "precision": 0.47
     },
     {
       "feed": "google_linkedin_guardianship",
-      "total": 25,
-      "accepted": 12,
-      "precision": 0.48
+      "total": 50,
+      "accepted": 22,
+      "precision": 0.44
+    },
+    {
+      "feed": "google_kff_health_news_aging",
+      "total": 23,
+      "accepted": 10,
+      "precision": 0.43
+    },
+    {
+      "feed": "google_linkedin_financial_vulnerability",
+      "total": 48,
+      "accepted": 18,
+      "precision": 0.38
     },
     {
       "feed": "google_linkedin_dementia",
-      "total": 28,
-      "accepted": 10,
-      "precision": 0.36
-    },
-    {
-      "feed": "google_federal_reserve",
-      "total": 23,
-      "accepted": 8,
-      "precision": 0.35
+      "total": 58,
+      "accepted": 19,
+      "precision": 0.33
     },
     {
       "feed": "google_linkedin_caregiver_fraud",
@@ -102,40 +144,58 @@
       "precision": 0.33
     },
     {
-      "feed": "google_fbi_financial_crimes",
-      "total": 33,
-      "accepted": 7,
-      "precision": 0.21
+      "feed": "google_nyt_caregiver_finance",
+      "total": 24,
+      "accepted": 6,
+      "precision": 0.25
     },
     {
-      "feed": "google_nih_alzheimers",
-      "total": 27,
-      "accepted": 4,
+      "feed": "google_fbi_financial_crimes",
+      "total": 40,
+      "accepted": 7,
+      "precision": 0.17
+    },
+    {
+      "feed": "google_federal_reserve",
+      "total": 52,
+      "accepted": 8,
       "precision": 0.15
     },
     {
+      "feed": "google_nih_alzheimers",
+      "total": 55,
+      "accepted": 7,
+      "precision": 0.13
+    },
+    {
       "feed": "google_linkedin_cognitive_decline",
-      "total": 25,
-      "accepted": 2,
+      "total": 52,
+      "accepted": 4,
       "precision": 0.08
     },
     {
       "feed": "google_ftc_enforcement",
-      "total": 27,
+      "total": 51,
       "accepted": 2,
-      "precision": 0.07
+      "precision": 0.04
     },
     {
       "feed": "google_sec_fraud",
-      "total": 21,
+      "total": 35,
       "accepted": 1,
-      "precision": 0.05
+      "precision": 0.03
     },
     {
       "feed": "google_doj_financial",
-      "total": 25,
+      "total": 54,
       "accepted": 1,
-      "precision": 0.04
+      "precision": 0.02
+    },
+    {
+      "feed": "google_wapo_guardianship_abuse",
+      "total": 9,
+      "accepted": 0,
+      "precision": 0
     }
   ]
 }

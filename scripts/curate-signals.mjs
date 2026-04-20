@@ -8,6 +8,7 @@ const sourcePath = path.join(cwd, "data", "ranked_chunks.json");
 const profilePath = path.join(cwd, "config", "kinage-profile.json");
 const curatedPath = path.join(cwd, "data", "curated_signals.json");
 const reportPath = path.join(cwd, "data", "curation_report.json");
+const AGE_BUCKET_ORDER = ["today", "this_week", "this_month", "older"];
 
 function normalize(text) {
   return String(text || "")
@@ -27,6 +28,21 @@ function priority(score) {
   if (score >= 1.0) return "HIGH";
   if (score >= 0.5) return "MEDIUM";
   return "LOW";
+}
+
+function parseTs(value) {
+  const ts = Date.parse(String(value ?? ""));
+  return Number.isFinite(ts) ? ts : null;
+}
+
+function ageBucketFromTimestamp(ts, nowTs = Date.now()) {
+  if (!Number.isFinite(ts)) return "older";
+  const diffMs = Math.max(nowTs - ts, 0);
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (diffMs <= dayMs) return "today";
+  if (diffMs <= 7 * dayMs) return "this_week";
+  if (diffMs <= 30 * dayMs) return "this_month";
+  return "older";
 }
 
 function evaluate(row, profile) {
@@ -98,6 +114,13 @@ async function main() {
   const profile = JSON.parse(await fs.readFile(profilePath, "utf8"));
   const rows = JSON.parse(await fs.readFile(sourcePath, "utf8"));
   if (!Array.isArray(rows)) throw new Error("ranked_chunks.json must be an array");
+  const recencyWindowHours = Number(profile.recencyWindowHours ?? 72);
+  const recencyWindowMs = Math.max(recencyWindowHours, 1) * 60 * 60 * 1000;
+  const nowTs = Date.now();
+  const ingestedValues = rows
+    .map((row) => parseTs(row.ingested_at))
+    .filter((value) => value !== null);
+  const latestIngestTs = ingestedValues.length ? Math.max(...ingestedValues) : null;
 
   const evaluated = rows.map((row) => ({
     row,
@@ -109,8 +132,18 @@ async function main() {
     .sort((a, b) => (b.row.score ?? 0) - (a.row.score ?? 0))
     .map((item) => {
       const metadata = item.row.metadata ?? {};
+      const publishedTs = parseTs(metadata.published ?? item.row.ingested_at);
+      const ingestedTs = parseTs(item.row.ingested_at);
+      const isNewIngest =
+        latestIngestTs !== null &&
+        ingestedTs !== null &&
+        latestIngestTs - ingestedTs <= recencyWindowMs;
+      const ingestRecencyBucket = isNewIngest ? "newer" : "older";
       return {
         ...item.row,
+        age_bucket: ageBucketFromTimestamp(publishedTs ?? 0, nowTs),
+        is_new_ingest: isNewIngest,
+        ingest_recency_bucket: ingestRecencyBucket,
         metadata: {
           ...metadata,
           kinage_fit_score: item.result.fitScore,
@@ -139,12 +172,37 @@ async function main() {
     }))
     .sort((a, b) => b.precision - a.precision);
 
+  const recencyBreakdown = curated.reduce(
+    (acc, row) => {
+      const bucket = row.ingest_recency_bucket === "newer" ? "newer" : "older";
+      const ageBucket = AGE_BUCKET_ORDER.includes(row.age_bucket)
+        ? row.age_bucket
+        : "older";
+      acc[bucket] += 1;
+      acc.age_buckets[ageBucket] = (acc.age_buckets[ageBucket] ?? 0) + 1;
+      return acc;
+    },
+    {
+      newer: 0,
+      older: 0,
+      age_buckets: {
+        today: 0,
+        this_week: 0,
+        this_month: 0,
+        older: 0,
+      },
+    }
+  );
+
   const report = {
     generated_at: new Date().toISOString(),
     profile_version: profile.version,
+    latest_ingest_at: latestIngestTs ? new Date(latestIngestTs).toISOString() : null,
+    recency_window_hours: recencyWindowHours,
     source_count: rows.length,
     curated_count: curated.length,
     acceptance_rate: rows.length ? Number((curated.length / rows.length).toFixed(3)) : 0,
+    recency_breakdown: recencyBreakdown,
     feed_precision: feedPrecision,
   };
 

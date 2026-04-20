@@ -27,6 +27,11 @@ Signal model and metric definitions:
 - `docs/signal-operating-model.md`
 - `docs/paywalled-source-strategy.md`
 
+Recency behavior:
+
+- Curated signals are stamped with ingest recency (`newer` vs `older`) and age buckets.
+- Dashboard includes a recency filter and separate feed sections for newer vs previously ingested signals.
+
 Author enrichment and outreach workflow:
 
 - `docs/enrichment-and-outreach-workflow.md`
