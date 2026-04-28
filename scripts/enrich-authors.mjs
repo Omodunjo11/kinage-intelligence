@@ -214,7 +214,7 @@ async function main() {
 
   const activity = buildActivity(rows);
 
-  if (shouldWrite) {
+  if (shouldWrite && enriched > 0) {
     await fs.writeFile(sourcePath, `${JSON.stringify(rows, null, 2)}\n`);
   }
   await fs.writeFile(activityPath, `${JSON.stringify(activity, null, 2)}\n`);
@@ -222,6 +222,9 @@ async function main() {
   console.log(`Scanned: ${scanned}`);
   console.log(`New authors found: ${enriched}`);
   console.log(`Activity rows: ${activity.length}`);
+  if (shouldWrite && enriched === 0) {
+    console.log("Skipped ranked_chunks.json write because no new authors were resolved");
+  }
   if (!shouldWrite) {
     console.log("Dry run mode: add --write to persist author values into ranked_chunks.json");
   }

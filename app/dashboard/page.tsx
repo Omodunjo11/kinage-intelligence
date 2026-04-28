@@ -213,6 +213,11 @@ export default function DashboardPage() {
     }).length;
   }, [articles, latestTimestamp]);
 
+  const newSignalsCount = useMemo(
+    () => articles.filter((article) => article.recencyBucket === "newer").length,
+    [articles]
+  );
+
   const cadenceText = suggestCadence(signalVolume7d);
 
   const domainCounts = useMemo(() => {
@@ -501,11 +506,32 @@ export default function DashboardPage() {
         .signal-row:hover {
           background: #f8fafc;
         }
+        .signal-row.new-signal {
+          background:
+            linear-gradient(90deg, rgba(251, 191, 36, 0.16), rgba(255, 255, 255, 0) 22%),
+            #fffdf5;
+          box-shadow: inset 4px 0 0 #f59e0b;
+        }
+        .signal-row.new-signal:hover {
+          background:
+            linear-gradient(90deg, rgba(251, 191, 36, 0.2), rgba(248, 250, 252, 0) 22%),
+            #fffaf0;
+        }
         .signal-title {
           font-size: 14px;
           color: #0f172a;
           line-height: 1.45;
           margin-bottom: 6px;
+        }
+        .signal-title-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        }
+        .signal-title-row .signal-title {
+          margin-bottom: 0;
         }
         .pill {
           display: inline-flex;
@@ -519,6 +545,14 @@ export default function DashboardPage() {
           color: #334155;
           background: #f8fafc;
         }
+        .pill.new-pill {
+          border-color: #f59e0b;
+          color: #92400e;
+          background: #fef3c7;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
         .expand {
           padding: 10px 10px 14px 44px;
           border-bottom: 1px solid #e2e8f0;
@@ -526,6 +560,21 @@ export default function DashboardPage() {
           font-size: 13px;
           line-height: 1.65;
           background: #f8fafc;
+        }
+        .new-signal-note {
+          margin-bottom: 12px;
+          border: 1px solid #fcd34d;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #fff7db, #fffbeb);
+          padding: 12px 14px;
+          color: #78350f;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+        .new-signal-note strong {
+          display: block;
+          margin-bottom: 4px;
+          color: #92400e;
         }
         .expand h4 {
           margin: 0 0 6px;
@@ -717,6 +766,15 @@ export default function DashboardPage() {
             sub="volume-based KPI for review cadence"
           />
           <StatCard
+            label="New This Ingest"
+            value={newSignalsCount}
+            sub={
+              newSignalsCount > 0
+                ? "highlighted with amber badge and row accent"
+                : "no newer-ingest signals in the current dataset"
+            }
+          />
+          <StatCard
             label="Critical Priority"
             value={criticalCount}
             sub="score-derived items for immediate triage"
@@ -846,6 +904,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            <div className="new-signal-note">
+              <strong>New signal highlighting</strong>
+              Signals from the latest ingest window get an amber badge and left-edge accent so
+              they stand apart from previously ingested items at a glance.
+            </div>
+
             <div className="header-row">
               <span>#</span>
               <span>Signal</span>
@@ -917,14 +981,19 @@ export default function DashboardPage() {
                             <div key={article.id}>
                               <button
                                 type="button"
-                                className="signal-row"
+                                className={`signal-row ${article.isNewIngest ? "new-signal" : ""}`}
                                 onClick={() => toggleExpanded(article.id)}
                               >
                                 <div style={{ color: "#64748b", fontSize: 12 }}>
                                   {String(index + 1).padStart(2, "0")}
                                 </div>
                                 <div>
-                                  <div className="signal-title">{article.title}</div>
+                                  <div className="signal-title-row">
+                                    <div className="signal-title">{article.title}</div>
+                                    {article.isNewIngest && (
+                                      <span className="pill new-pill">New</span>
+                                    )}
+                                  </div>
                                   <div>
                                     {domain ? (
                                       <span
